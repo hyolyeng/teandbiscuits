@@ -1,0 +1,23 @@
+{
+  "name": "MyNewProject",
+  "version": "0.0.0",
+  "description": "",
+  "author": "",
+  "private": true,
+  "main": "main.js",
+  "dependencies": {
+    "@exponent/vector-icons": "~4.0.0",
+    "apsl-react-native-button": "^3.0.2",
+    "exponent": "^14.0.0",
+    "firebase": "^3.6.9",
+    "moment": "^2.17.1",
+    "react": "~15.4.0",
+    "react-native": "https://github.com/exponent/react-native/archive/sdk-14.0.0.tar.gz",
+    "react-native-datepicker": "^1.4.4",
+    "react-native-gifted-form": "0.0.13",
+    "react-native-gifted-spinner": "^0.1.0",
+    "react-native-google-places-autocomplete": "^1.2.8",
+    "react-native-multi-slider": "^0.3.5",
+    "react-native-textinput-effects": "^0.3.0"
+  }
+}

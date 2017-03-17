@@ -7,6 +7,7 @@ import {
     View,
     StyleSheet,
     dismissKeyboard,
+    TouchableOpacity,
     TouchableWithoutFeedback
 } from "react-native";
 
@@ -61,7 +62,6 @@ class Login extends Component {
     DismissKeyboard();
 
     try {
-      await firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password);
 
       this.setState({
         response: "Logged In!"
@@ -81,26 +81,70 @@ class Login extends Component {
 
   }
 
+  handleChange(field, e) {
+    console.log(field + ": " + e.target.value);
+    this.setState({field: e.target.value});
+  }
+
+  navToHome() {
+    console.log("NAV TO HOME!");
+    this.setState({
+      response: "Logged In!"
+    });
+    setTimeout(() => {
+      this.props.navigator.push({
+        name: "Home"
+      })
+    }, 1000);
+  }
+
+  async signUpOrLogIn() {
+    DismissKeyboard();
+    try {
+      await firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password);
+      this.navToHome();
+    } catch (error) {
+      try {
+        console.log("try signing in..");
+        await firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password);
+        this.navToHome();
+      } catch (error) {
+        this.setState({
+          response: error.toString()
+        })
+      }
+    }
+  }
+
   render() {
-    console.log("Login: render!");
+    console.log(this.state);
     return (
       <TouchableWithoutFeedback onPress={() => {DismissKeyboard()}}>
         <View style={CommonStyle.container}>
           <View style={styles.wrapper}>
             <Text style={styles.appName}>{"Tea & Biscuits"}</Text>
             <Text style={styles.subscript}>{"Please sign up to continue."}</Text>
-            <TextInput style={styles.email}
+            <TextInput style={styles.inputField}
+                       onChangeText={(value) => this.setState({'email': value})}
                        placeholder={"Your email here"}
                        placeholderTextColor="#C7C7CD"
                        value={this.state.email}>
             </TextInput>
-            <TextInput style={styles.password}
-                       secureTextEntry={false}
+            <TextInput style={styles.inputField}
+                       onChangeText={(value) => this.setState({'password': value})}
+                       secureTextEntry={true}
                        placeholder={"Your password here"}
                        placeholderTextColor="#C7C7CD"
                        value={this.state.password}>
             </TextInput>
+
+            <TouchableOpacity onPress={this.signUpOrLogIn.bind(this)}>
+              <View style={styles.button}>
+                <Text style={styles.buttonText}>{"Sign Up"}</Text>
+              </View>
+            </TouchableOpacity>
           </View>
+          <View style={{flex: 2}}></View>
 
         </View>
       </TouchableWithoutFeedback>
@@ -110,7 +154,7 @@ class Login extends Component {
 
 const styles = StyleSheet.create({
   wrapper: {
-    flex: 1,
+    flex: 8,
     justifyContent: 'center',
     flexDirection: 'column',
   },
@@ -119,44 +163,37 @@ const styles = StyleSheet.create({
     fontSize: 36,
     textAlign: 'center',
     color: "#6D6D72",
+    margin: 10,
   },
   subscript: {
     fontFamily: 'Helvetica',
     fontSize: 24,
     textAlign: 'center',
     color: "#6D6D72",
+    margin: 10,
   },
-  email: {
-
+  inputField: {
+    backgroundColor: '#FFFFFF',
+    fontFamily: 'Helvetica',
+    fontSize: 20,
+    height: 40,
+    paddingLeft: 20,
+    paddingRight: 20,
+    margin: 10,
+    borderRadius: 3,
   },
-  password: {
-
+  button: {
+    backgroundColor: '#F6A623',
+    margin: 10,
   },
-
-    formGroup: {
-        padding: 50
-    },
-
-    title: {
-        paddingBottom: 16,
-        textAlign: "center",
-        color: "#000",
-        fontSize: 35,
-        fontWeight: "bold",
-        opacity: 0.8,
-    },
-
-    submit: {
-        paddingTop: 30
-    },
-
-    response: {
-        color: "#f00",
-        textAlign: "center",
-        paddingTop: 0,
-        padding: 50
-    },
-
+  buttonText: {
+    fontFamily: 'Helvetica',
+    fontSize: 20,
+    color: "#FFFFFF",
+    textAlign: 'center',
+    paddingTop: 10,
+    paddingBottom: 10,
+  }
 });
 
 module.exports = Login;

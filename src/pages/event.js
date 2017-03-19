@@ -66,7 +66,6 @@ class Event extends Component {
   }
 
   setSelectedContacts(contacts) {
-    console.log("Woohoo! " + contacts);
     // TODO
     this.setState({
       guests: contacts

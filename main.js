@@ -102,7 +102,6 @@ class App extends React.Component {
 
   getInitialView() {
     firebase.auth().onAuthStateChanged((user) => {
-      console.log("Auth status changed! " + user);
 
       let initialView = user ? "Home" : "Login";
 

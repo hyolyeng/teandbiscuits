@@ -86,7 +86,6 @@ class Contacts extends Component {
   donePressed() {
     // save 
     let selectedContacts = this.state.contacts.filter((contact) => {return contact.selected;});
-    console.log("selected! : " + selectedContacts);
     this.props.setSelectedContactsCallback(selectedContacts);
     this.props.navigator.pop();
   }
@@ -108,7 +107,6 @@ class Contacts extends Component {
   }
 
   renderRow(contact) {
-    console.log(contact.id + ": " + contact.selected);
     return (
       <View style={styles.contactRowContainer}>
         <View style={styles.contactRow}>

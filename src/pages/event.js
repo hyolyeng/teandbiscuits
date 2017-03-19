@@ -39,6 +39,12 @@ class Event extends Component {
     }
   }
 
+  componentWillMount() {
+    // Need to inject the Done button in the navigation bar.
+    this.props.route.rightButtonText = "Done";
+    this.props.route.onRightButtonPress = this.createOrUpdateEvent;
+  }
+
   incrementMinGuests() {
     if (this.state.minimum_guests < this.state.maximum_guests) {
       this.setState({minimum_guests: this.state.minimum_guests + 1});
@@ -59,8 +65,22 @@ class Event extends Component {
     }
   }
 
-  openContactsView() {
+  setSelectedContacts(contacts) {
+    console.log("Woohoo! " + contacts);
+    // TODO
+    this.setState({
+      guests: contacts
+    });
+  }
 
+  openContactsView() {
+    this.props.navigator.push({
+      name: "Contacts", 
+      passProps: {setSelectedContactsCallback: (contacts) => {this.setSelectedContacts(contacts);}}
+    });
+  }
+
+  createOrUpdateEvent() {
   }
 
   render() {

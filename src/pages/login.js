@@ -117,7 +117,6 @@ class Login extends Component {
   }
 
   render() {
-    console.log(this.state);
     return (
       <TouchableWithoutFeedback onPress={() => {DismissKeyboard()}}>
         <View style={CommonStyle.container}>
@@ -125,6 +124,7 @@ class Login extends Component {
             <Text style={styles.appName}>{"Tea & Biscuits"}</Text>
             <Text style={styles.subscript}>{"Please sign up to continue."}</Text>
             <TextInput style={styles.inputField}
+                       autoCapitalize={'none'}
                        onChangeText={(value) => this.setState({'email': value})}
                        placeholder={"Your email here"}
                        placeholderTextColor="#C7C7CD"

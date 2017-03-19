@@ -1,6 +1,6 @@
 'use strict';
 
-import Exponent, { Font } from 'exponent';
+import Expo from 'expo';
 
 import React, {
   Component
@@ -8,43 +8,67 @@ import React, {
 
 import {
   AppRegistry,
+  Image,
   Navigator,
   StyleSheet,
   TouchableHighlight,
   Text,
+  View,
 } from 'react-native';
 
 import * as firebase from 'firebase';
 
-import Home from './src/pages/home';
+import Contacts from './src/pages/contacts';
 import Event from './src/pages/event';
+import Home from './src/pages/home';
 import Login from './src/pages/login';
 import Firebase from './src/firebase/firebase';
 import CommonStyles from './src/styles/common-styles.js';
 
 
 var NavigationBarRouteMapper = {
-  LeftButton(route, navigator, index, navState) {
-    if(index > 0) {
-      return (
-        <TouchableHighlight
-           underlayColor="transparent"
-           onPress={() => { if (index > 0) { navigator.pop() } }}>
-          <Text style={ styles.leftNavButtonText }>Back</Text>
-        </TouchableHighlight>
-    )} 
-    else { return null }
+  LeftButton(route, navigator, index, navState){
+    let text = route.leftButtonText;
+    let icon = route.leftButtonIcon;
+    if (!text && !icon) {
+      return null;
+    }
+    let view = "";
+    if (text) {
+      view = (<Text style={styles.navButtonText}>{text}</Text>)
+    } else if (icon) {
+      view = (<Image source={icon} style={styles.navButtonIcon}></Image>)
+    }
+    return (
+      <TouchableHighlight underlayColor="transparent"
+                          style={styles.navBarItemContainer}
+                          onPress={ () => route.onLeftButtonPress() }>
+        {view}
+      </TouchableHighlight>);
   },
   RightButton(route, navigator, index, navState) {
-    if (route.logout) return ( <TouchableHighlight
-                                onPress={ () => route.logout() }>
-                                <Text style={ styles.navButtonText }>
-                                    { route.rightText || 'Log Out' }
-                                </Text>
-                              </TouchableHighlight> )
+    let text = route.rightButtonText;
+    let icon = route.rightButtonIcon;
+    if (!text && !icon) {
+      return null;
+    }
+    let view = "";
+    if (text) {
+      view = (<Text style={styles.navButtonText}>{text}</Text>);
+    } else if (icon) {
+      view = (<Image source={icon} style={styles.navButtonIcon}></Image>);
+    }
+    return (
+      <TouchableHighlight underlayColor="transparent"
+                          style={styles.navBarItemContainer}
+                          onPress={ () => route.onRightButtonPress() }>
+        {view}
+      </TouchableHighlight>);
   },
   Title(route, navigator, index, navState) {
-    return <Text style={ styles.title }>{route.title}</Text>
+    return (<View style={styles.navBarItemContainer}>
+              <Text style={ styles.navBarTitle }>{route.title}</Text>
+            </View>);
   }
 };
 
@@ -91,22 +115,32 @@ class App extends React.Component {
   }
 
   renderScene(route, navigator) {
-    if (this.state.user != null) {
+    route.title = "Tea & Biscuits";
+    /*if (this.state.user != null) {
       route.logout = this.logout;
     } else {
       navigator.popToTop();
-    }
+    }*/
     switch (route.name) {
       case "Home":
-        return (<Home navigator={navigator} title={"Tea & Biscuits"} {...route.passProps} />);
+        route.rightButtonText = "Create Event";
+        route.onRightButtonPress = () => {
+          navigator.push({name: "Event"});
+        };
+        return (<Home navigator={navigator} {...route.passProps} />);
         break;
-
       case "Login":
         return (<Login navigator={navigator} {...route.passProps} />);
         break;
-
       case "Event":
-        return (<Event navigator={navigator} {...route.passProps} />);
+        route.leftButtonText = "Cancel";
+        route.onLeftButtonPress = navigator.pop;
+        return (<Event navigator={navigator} route={route} {...route.passProps} />);
+        break;
+      case "Contacts":
+        route.leftButtonText = "Back";
+        route.onLeftButtonPress = navigator.pop;
+        return (<Contacts navigator={navigator} route={route} {...route.passProps} />);
         break;
     }
   }
@@ -137,9 +171,27 @@ class App extends React.Component {
 }
 
 const styles = StyleSheet.create({
-  title: {
-
+  navBarItemContainer: {
+    flex: 1,
+    alignItems: 'center', 
+    justifyContent: 'center',
   },
+  navBarTitle: {
+    color: "#FC913A",
+    fontFamily: 'Helvetica',
+    fontSize: 17,
+    textAlign: 'center',
+  },
+  navButtonIcon: {
+    width: 23,
+    height: 23,
+  },
+  navButtonText: {
+    color: "#0076FF",
+    fontFamily: 'Helvetica',
+    fontSize: 17,
+    margin: 10,
+  }
 });
 
-Exponent.registerRootComponent(App);
+Expo.registerRootComponent(App);

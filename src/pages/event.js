@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import {
   Button,
   dismissKeyboard,
+  ListView,
   StyleSheet,
   Text,
   TextInput,
@@ -27,6 +28,10 @@ class Event extends Component {
       minimum_guests: 1,
       maximum_guests: 1,
       guests: [],
+      guestsDataSource: new ListView.DataSource({
+        rowHasChanged: (r1, r2) => r1 !== r2,
+        sectionHeaderHasChanged: (s1, s2) => s1 !== s2
+      }),
     }
   }
 
@@ -42,7 +47,7 @@ class Event extends Component {
   componentWillMount() {
     // Need to inject the Done button in the navigation bar.
     this.props.route.rightButtonText = "Done";
-    this.props.route.onRightButtonPress = this.createOrUpdateEvent;
+    this.props.route.onRightButtonPress = this.createOrUpdateEvent.bind(this);
   }
 
   incrementMinGuests() {
@@ -66,13 +71,14 @@ class Event extends Component {
   }
 
   setSelectedContacts(contacts) {
-    // TODO
     this.setState({
-      guests: contacts
+      guests: contacts,
+      guestsDataSource: this.state.guestsDataSource.cloneWithRowsAndSections({"guests": contacts}),
     });
   }
 
   openContactsView() {
+    // TODO also pass in guests where invites were already sent
     this.props.navigator.push({
       name: "Contacts", 
       passProps: {setSelectedContactsCallback: (contacts) => {this.setSelectedContacts(contacts);}}
@@ -80,6 +86,49 @@ class Event extends Component {
   }
 
   createOrUpdateEvent() {
+    if (!this.state.name) {
+      alert("Event needs a name!");
+      return;
+    }
+
+    if (this.state.guests.length == 0) {
+      alert("No guests?!");
+      return;
+    }
+    let event = {
+      name: this.state.name,
+      place: this.state.place,
+      time: this.state.time,
+      minimum_guests: this.state.minimum_guests,
+      maximum_guests: this.state.maximum_guests,
+      guests: this.state.guests,
+    };
+    var eventsRef = firebase.database().ref('events');
+    eventsRef.push(event);
+  }
+
+  renderGuestsHeader(sectionData) {
+    let numGuests = sectionData.length;
+    return (
+      <Text style={styles.guestListHeader}>{numGuests + " guests selected"}</Text>
+    );
+  }
+
+  renderGuestRow(guest) {
+    return (
+      <View>
+        <View style={styles.guestRow}>
+          <Text style={styles.guestName}>
+            {guest.name}
+          </Text>
+          <Text style={styles.invitationStatus}>
+            {'Attending'}
+          </Text>
+        </View>
+        <View style={styles.linebreak}>
+        </View>
+      </View>
+    );
   }
 
   render() {
@@ -94,6 +143,7 @@ class Event extends Component {
               <TextInput style={styles.textInput}
                          placeholder={"Ladies Night"}
                          placeholderTextColor="#C7C7CD"
+                         onChangeText={(text) => this.setState({name: text})}
                          value={this.state.name}>
               </TextInput>
             </View>
@@ -108,6 +158,7 @@ class Event extends Component {
               <TextInput style={styles.textInput}
                          placeholder={"100 Infinity Way"}
                          placeholderTextColor="#C7C7CD"
+                         onChangeText={(text) => this.setState({place: text})}
                          value={this.state.place}>
               </TextInput>
             </View>
@@ -160,6 +211,12 @@ class Event extends Component {
               <TouchableOpacity onPress={this.openContactsView.bind(this)}>
                 <Text style={styles.actionButton}>{'Invite Guests from Contacts'}</Text>
               </TouchableOpacity>
+            </View>
+
+            <View style={styles.guestListContainer}>
+              <ListView dataSource={this.state.guestsDataSource}
+                        renderRow={this.renderGuestRow.bind(this)} 
+                        renderSectionHeader={this.renderGuestsHeader.bind(this)}/>
             </View>
           </View>
         </View>
@@ -248,6 +305,34 @@ const styles = StyleSheet.create({
   minusButton: {
     borderTopLeftRadius: 5,
     borderBottomLeftRadius: 5,
+  },
+  guestListContainer: {
+
+  },
+  guestListHeader: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    backgroundColor: "#EFEFF4",
+    alignItems: 'center',
+    paddingLeft: 16,
+    paddingTop: 5,
+    paddingBottom: 5,
+    color: "#6D6D72",
+  },
+  guestRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: "#FFFFFF",
+    height: 40,
+    alignItems: 'center',
+    paddingLeft: 16,
+    paddingRight: 16,
+  },
+  guestName: {
+    textAlign: 'left',
+  },
+  invitationStatus: {
+    textAlign: 'right',
   }
 });
 

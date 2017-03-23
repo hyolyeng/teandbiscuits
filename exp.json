@@ -1,21 +1,25 @@
 {
-  "name": "My New Project",
-  "description": "An empty new project",
-  "slug": "my-new-project",
+  "name": "Tea & Biscuits",
+  "description": "",
+  "slug": "hyolyeng",
   "privacy": "public",
   "sdkVersion": "14.0.0",
   "version": "1.0.0",
   "orientation": "portrait",
-  "primaryColor": "#cccccc",
-  "icon": "https://s3.amazonaws.com/exp-brand-assets/ExponentEmptyManifest_192.png",
+  "primaryColor": "#FC913A",
+  "icon": "https://lh3.googleusercontent.com/uRv9AiSIqR22k2VOyuzweeFA7QW3rQWDwtXJo04Ee0bhmmvwfCOE3_LPObma2-bTzd0Vn58-3CL5Fv7L0A-UJZgEVmNecGoJ2j2m4-LG8njO9tc8wdHucQHS8aOz1iojxtVV1A=s167-no",
   "loading": {
-    "icon": "https://s3.amazonaws.com/exp-brand-assets/ExponentEmptyManifest_192.png",
+    "icon": "https://lh3.googleusercontent.com/uRv9AiSIqR22k2VOyuzweeFA7QW3rQWDwtXJo04Ee0bhmmvwfCOE3_LPObma2-bTzd0Vn58-3CL5Fv7L0A-UJZgEVmNecGoJ2j2m4-LG8njO9tc8wdHucQHS8aOz1iojxtVV1A=s167-no",
     "hideExponentText": false
   },
   "packagerOpts": {
     "assetExts": ["ttf", "mp4"]
   },
   "ios": {
+    "bundleIdentifier": "org.hyolyeng.teandbiscuits",
     "supportsTablet": true
+  },
+  "android": {
+    "package": "org.hyolyeng.teandbiscuits"
   }
 }

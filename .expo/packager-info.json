@@ -1,10 +1,8 @@
 {
-  "exponentServerPort": null,
-  "packagerPort": 19001,
-  "packagerPid": 26515,
-  "exponentServerNgrokUrl": "https://vg-8u3.hyolyeng.teandbiscuits.exp.direct",
+  "expoServerNgrokUrl": "https://vg-8u3.hyolyeng.teandbiscuits.exp.direct",
   "packagerNgrokUrl": "https://packager.vg-8u3.hyolyeng.teandbiscuits.exp.direct",
-  "ngrokPid": 26553,
+  "ngrokPid": 97289,
   "expoServerPort": 19000,
-  "expoServerNgrokUrl": "https://vg-8u3.hyolyeng.teandbiscuits.exp.direct"
+  "packagerPort": 19001,
+  "packagerPid": 97252
 }

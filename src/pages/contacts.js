@@ -22,7 +22,6 @@ class Contacts extends Component {
     super(props);
     this.state = {
       dataSource: new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2}),
-      fontLoaded: false,
       contacts: [],
     };
   }
@@ -35,20 +34,6 @@ class Contacts extends Component {
 
   componentDidMount() {
     this.getContactsAsync();
-    this.loadFonts();
-  }
-
-  async loadFonts() {
-    try {
-      await Expo.Font.loadAsync({
-        'awesome': require('../../assets/fonts/fontawesome-webfont.ttf'),
-      });
-      this.setState({
-        fontLoaded: true
-      });
-    } catch (e) {
-      console.warn("Error loading fonts!! " + e);
-    }
   }
 
   async getContactsAsync() {
@@ -73,14 +58,13 @@ class Contacts extends Component {
       Expo.Contacts.EMAILS,
     ]);
     if (contacts.length > 0) {
+      // TODO this sorting doesn't work.
+      contacts.sort((a, b) => {return a.firstName < b.firstName});
       this.setState({
         contacts: contacts,
         dataSource: this.state.dataSource.cloneWithRows(contacts),
       });
     }
-  }
-  getDataSource(contacts) {
-    return this.state.dataSource.cloneWithRows(contacts);
   }
 
   donePressed() {
@@ -112,11 +96,9 @@ class Contacts extends Component {
         <View style={styles.contactRow}>
           <TouchableOpacity style={{flex: 1}} onPress={() => {this.selectContact(contact)}}>
             {
-              this.state.fontLoaded ? (
-                <Text style={{ ...Expo.Font.style('awesome'), marginLeft: 5, marginTop: 1, marginRight: 10}}>
-                {contact.selected ? '\uf14a' : '\uf0c8'}
-                </Text>
-              ) : null
+              <Text style={{ ...Expo.Font.style('awesome'), marginLeft: 5, marginTop: 1, marginRight: 10}}>
+              {contact.selected ? '\uf046' : '\uf096'}
+              </Text>
             }
           </TouchableOpacity>
           <Text style={styles.contactName, {flex: 10}}>{contact.name}</Text>

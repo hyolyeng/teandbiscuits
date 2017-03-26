@@ -1,1 +1,2 @@
-web: gunicorn ProjectName.wsgi:application --log-file -
+
+web: gunicorn teandbiscuits.wsgi --log-file -

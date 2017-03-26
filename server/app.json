@@ -4,6 +4,6 @@
   "image": "heroku/python",
   "repository": "https://github.com/hyolyeng/teandbiscuits.git",
   "keywords": ["python", "django" ],
-  "addons": [ "heroku-postgresql" ]
+  "addons": []
 }
 

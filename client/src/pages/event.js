@@ -15,6 +15,8 @@ import CommonStyles from '../styles/common-styles.js';
 
 import DismissKeyboard from "dismissKeyboard";
 
+import Communications from 'react-native-communications';
+
 import * as firebase from "firebase";
 
 class Event extends Component {
@@ -101,6 +103,11 @@ class Event extends Component {
     });
   }
 
+  getUniqueUrl(eventId) {
+    return "http://teandbiscuits.herokuapp.com/event?event_id=" + eventId + "&hash=" + 
+        Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
+  }
+
   createOrUpdateEvent() {
     if (!this.state.name) {
       alert("Event needs a name!");
@@ -111,16 +118,44 @@ class Event extends Component {
       alert("No guests?!");
       return;
     }
+
+    let eventsRef = null;
+    if (!this.state.key) {
+      eventsRef = firebase.database().ref('events').push();
+    } else {
+      // TODO - may have to fix.
+      eventsRef = firebase.database().ref('events').get(this.state.key);
+    }
+
+    let guests = [];
+    for (let i = 0; i < this.state.guests.length; i++) {
+      // generate random string
+      let guest = this.state.guests[i];
+      guest.url = this.getUniqueUrl(eventsRef.key);
+      guests.push(guest);
+      if (guest.phoneNumbers && guest.phoneNumbers.length > 0) {
+        // TODO maybe pick which phone number in case there's > 1
+        let number = guest.phoneNumbers[0].number.match(/\d/g).join('');
+        let body = "Invite to " + this.state.name + ", please respond through this link: " + guest.url;
+        console.log("Sending SMS to number: " + number);
+        // TODO
+        //Communications.text(number, body);
+      } else if (guest.emails) {
+        // TODO send email
+        console.log("Send email to: " + guest.emails);
+      }
+    }
+    // for each guest, need to create a unique url hash and send to server
     let event = {
       name: this.state.name,
       place: this.state.place,
       time: this.state.time,
       minimum_guests: this.state.minimum_guests,
       maximum_guests: this.state.maximum_guests,
-      guests: this.state.guests,
+      guests: guests,
     };
-    var eventsRef = firebase.database().ref('events');
-    eventsRef.push(event);
+
+    eventsRef.set(event);
   }
 
   renderGuestsHeader(sectionData) {

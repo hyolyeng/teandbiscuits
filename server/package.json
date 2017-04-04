@@ -31,6 +31,7 @@
   "homepage": "https://github.com/mars/heroku-nextjs#readme",
   "dependencies": {
     "@mars/heroku-nextjs-build": "^2.0.0",
+    "firebase": "^3.7.4",
     "next": "^1.0.2"
   }
 }

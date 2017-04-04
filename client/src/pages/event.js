@@ -24,8 +24,10 @@ class Event extends Component {
     super(props);
 
     let event = props.event;
-    if (event) {
+    let eventId = props.eventId;
+    if (eventId) {
       this.state = {
+        id: eventId,
         name: event.name,
         place: event.place,
         time: event.time,
@@ -39,6 +41,7 @@ class Event extends Component {
       };
     } else {
       this.state = {
+        id: '',
         name: '',
         place: '',
         time: 0,
@@ -103,9 +106,11 @@ class Event extends Component {
     });
   }
 
-  getUniqueUrl(eventId) {
-    return "http://teandbiscuits.herokuapp.com/event?event_id=" + eventId + "&hash=" + 
-        Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
+  getUserKeyForEventUrl() {
+    return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
+  }
+  getUrl(eventId, uId) {
+    return "http://teandbiscuits.herokuapp.com/event?event_id=" + eventId + "&uId=" + uId;
   }
 
   createOrUpdateEvent() {
@@ -120,18 +125,20 @@ class Event extends Component {
     }
 
     let eventsRef = null;
-    if (!this.state.key) {
+    if (!this.state.id) {
       eventsRef = firebase.database().ref('events').push();
     } else {
       // TODO - may have to fix.
-      eventsRef = firebase.database().ref('events').get(this.state.key);
+      eventsRef = firebase.database().ref('events').child(this.state.id);
     }
 
     let guests = [];
     for (let i = 0; i < this.state.guests.length; i++) {
       // generate random string
       let guest = this.state.guests[i];
-      guest.url = this.getUniqueUrl(eventsRef.key);
+      let uId = this.getUserKeyForEventUrl();
+      guest.url = this.getUrl(eventsRef.key, uId);
+      guest.key = uId;
       guests.push(guest);
       if (guest.phoneNumbers && guest.phoneNumbers.length > 0) {
         // TODO maybe pick which phone number in case there's > 1
@@ -153,9 +160,11 @@ class Event extends Component {
       minimum_guests: this.state.minimum_guests,
       maximum_guests: this.state.maximum_guests,
       guests: guests,
+      owner: firebase.auth().currentUser.uid,
     };
 
     eventsRef.set(event);
+    this.props.navigator.pop();
   }
 
   renderGuestsHeader(sectionData) {

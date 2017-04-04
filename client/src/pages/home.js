@@ -24,7 +24,7 @@ class Home extends Component {
       }),
       dataLoaded: false
     };
-    this.eventsRef = this.getRef().child('events');
+    this.eventsRef = this.getRef().child('events').orderByChild('owner').equalTo(firebase.auth().currentUser.uid);
   }
 
   getRef() {
@@ -35,7 +35,7 @@ class Home extends Component {
     eventsRef.on('value', (snap) => {
       var events = [];
       snap.forEach((child) => {
-        events.push(child.val());
+        events.push({event: child.val(), key: child.key});
       })
       this.setState({
         dataSource: this.state.dataSource.cloneWithRows(events),
@@ -86,10 +86,10 @@ class Home extends Component {
     })
   }
 
-  updateEvent(event) {
+  updateEvent(key, event) {
     this.props.navigator.push({
       name: "Event",
-      passProps: {"event": event},
+      passProps: {"eventId": key, "event": event},
     })
   }
 
@@ -97,10 +97,12 @@ class Home extends Component {
     return time + "";
   }
 
-  renderEventRow(event) {
+  renderEventRow(eventContainer) {
+    let event = eventContainer.event;
+    let key = eventContainer.key;
     return (
       <TouchableOpacity onPress={() => {
-        this.updateEvent(event);
+        this.updateEvent(key, event);
       }}>
         <View style={styles.eventRowContainer}>
           <View style={styles.eventInfo}>

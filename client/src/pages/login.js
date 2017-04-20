@@ -24,6 +24,7 @@ class Login extends Component {
     super(props);
 
     this.state = {
+      name: '',
       email: '',
       password: '',
       response: '',
@@ -34,11 +35,17 @@ class Login extends Component {
 
   async signup() {
 
+    if (this.state.name.length < 1) {
+      alert("Please provide your name for your friends to know who is sending them an invite!");
+      return;
+    }
+
     DismissKeyboard();
 
     try {
       await firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password);
-
+      let userRef = firebase.database().ref('users').push();
+      userRef.set({name: this.state.name});
       this.setState({
         response: "account created"
       });
@@ -60,34 +67,21 @@ class Login extends Component {
   async login() {
 
     DismissKeyboard();
-
     try {
-
-      this.setState({
-        response: "Logged In!"
-      });
-
-      setTimeout(() => {
-        this.props.navigator.push({
-          name: "Home"
-        })
-      }, 1500);
-
+      await firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password);
+      this.navToHome();
     } catch (error) {
       this.setState({
         response: error.toString()
       })
     }
-
   }
 
   handleChange(field, e) {
-    console.log(field + ": " + e.target.value);
     this.setState({field: e.target.value});
   }
 
   navToHome() {
-    console.log("NAV TO HOME!");
     this.setState({
       response: "Logged In!"
     });
@@ -98,31 +92,51 @@ class Login extends Component {
     }, 1000);
   }
 
-  async signUpOrLogIn() {
-    DismissKeyboard();
-    try {
-      await firebase.auth().createUserWithEmailAndPassword(this.state.email, this.state.password);
-      this.navToHome();
-    } catch (error) {
-      try {
-        console.log("try signing in..");
-        await firebase.auth().signInWithEmailAndPassword(this.state.email, this.state.password);
-        this.navToHome();
-      } catch (error) {
-        this.setState({
-          response: error.toString()
-        })
-      }
-    }
-  }
-
   render() {
+    let header = "";
+    let footer = "";
+    let button = "";
+    if (this.props.route.type == "signup") {
+      header = <View>
+          <Text style={styles.subscript}>{"Please sign up to continue."}</Text>
+          <TextInput style={styles.inputField}
+                     onChangeText={(value) => this.setState({'name': value})}
+                     placeholder={"Your name here"}
+                     placeholderTextColor="#C7C7CD"
+                     value={this.state.name}>
+          </TextInput>
+      </View>;
+      footer = <TouchableOpacity onPress={() => {this.props.navigator.replace({name: "Login"});}}>
+          <Text style={styles.link}>{"Or Press Here to Log In"}</Text>
+      </TouchableOpacity>;
+      button = <TouchableOpacity onPress={this.signup.bind(this)}>
+              <View style={styles.button}>
+                <Text style={styles.buttonText}>{"Sign Up"}</Text>
+              </View>
+            </TouchableOpacity>;
+    } else {
+      header = <Text style={styles.subscript}>{"Please log in to continue."}</Text>;
+      footer = <TouchableOpacity onPress={() => {this.props.navigator.replace({name: "Signup"});}}>
+          <Text style={styles.link}>{"Or Press Here to Sign Up"}</Text>
+      </TouchableOpacity>;
+      button = <TouchableOpacity onPress={this.login.bind(this)}>
+              <View style={styles.button}>
+                <Text style={styles.buttonText}>{"Log In"}</Text>
+              </View>
+            </TouchableOpacity>;
+    }
+    if (this.props.route.type == "signup") {
+    } else {
+    }
+
+    let actionButton = "";
+
     return (
       <TouchableWithoutFeedback onPress={() => {DismissKeyboard()}}>
         <View style={CommonStyle.container}>
           <View style={styles.wrapper}>
             <Text style={styles.appName}>{"Tea & Biscuits"}</Text>
-            <Text style={styles.subscript}>{"Please sign up to continue."}</Text>
+            {header}
             <TextInput style={styles.inputField}
                        autoCapitalize={'none'}
                        onChangeText={(value) => this.setState({'email': value})}
@@ -138,11 +152,10 @@ class Login extends Component {
                        value={this.state.password}>
             </TextInput>
 
-            <TouchableOpacity onPress={this.signUpOrLogIn.bind(this)}>
-              <View style={styles.button}>
-                <Text style={styles.buttonText}>{"Sign Up"}</Text>
-              </View>
-            </TouchableOpacity>
+            {button}
+
+            {footer}
+            <Text style={styles.response}>{this.state.response}</Text>
           </View>
           <View style={{flex: 2}}></View>
 
@@ -193,6 +206,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     paddingTop: 10,
     paddingBottom: 10,
+  },
+  link: {
+    textAlign: 'center',
+    paddingTop: 10,
+    color: "#C4C4C4",
+  },
+  response: {
+    textAlign: 'center',
+    color: '#EC6875',
+    padding: 10,
   }
 });
 

@@ -37,7 +37,7 @@ class Event extends Component {
         guestsDataSource: new ListView.DataSource({
           rowHasChanged: (r1, r2) => r1 !== r2,
           sectionHeaderHasChanged: (s1, s2) => s1 !== s2
-        }).cloneWithRowsAndSections({"guests": event.guests}),
+        }).cloneWithRowsAndSections({"guests": event.guests || {}}),
       };
     } else {
       this.state = {
@@ -47,7 +47,7 @@ class Event extends Component {
         time: 0,
         minimum_guests: 1,
         maximum_guests: 1,
-        guests: [],
+        guests: {},
         guestsDataSource: new ListView.DataSource({
           rowHasChanged: (r1, r2) => r1 !== r2,
           sectionHeaderHasChanged: (s1, s2) => s1 !== s2
@@ -110,7 +110,7 @@ class Event extends Component {
     return Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);
   }
   getUrl(eventId, uId) {
-    return "http://teandbiscuits.herokuapp.com/event?event_id=" + eventId + "&uId=" + uId;
+    return "http://teandbiscuits.herokuapp.com/event?id=" + eventId + "&uId=" + uId;
   }
 
   createOrUpdateEvent() {
@@ -132,14 +132,14 @@ class Event extends Component {
       eventsRef = firebase.database().ref('events').child(this.state.id);
     }
 
-    let guests = [];
+    let guests = {};
     for (let i = 0; i < this.state.guests.length; i++) {
       // generate random string
       let guest = this.state.guests[i];
       let uId = this.getUserKeyForEventUrl();
       guest.url = this.getUrl(eventsRef.key, uId);
       guest.key = uId;
-      guests.push(guest);
+      guests[uId] = guest;
       if (guest.phoneNumbers && guest.phoneNumbers.length > 0) {
         // TODO maybe pick which phone number in case there's > 1
         let number = guest.phoneNumbers[0].number.match(/\d/g).join('');
@@ -168,9 +168,20 @@ class Event extends Component {
   }
 
   renderGuestsHeader(sectionData) {
-    let numGuests = sectionData.length;
+    let numTotal = 0;
+    let numAttending = 0;
+    let numDeclined = 0;
+    for (var key in sectionData) {
+      numTotal += 1;
+      let guest = sectionData[key];
+      if (guest.rsvp == "attending") {
+        numAttending += 1;
+      } else if (guest.rsvp == "declined") {
+        numDeclined += 1;
+      }
+    }
     return (
-      <Text style={styles.guestListHeader}>{numGuests + " guests selected"}</Text>
+      <Text style={styles.guestListHeader}>{numTotal + " guests invited, " + numAttending + " attending, " + numDeclined + " declined"}</Text>
     );
   }
 
@@ -182,7 +193,7 @@ class Event extends Component {
             {guest.name}
           </Text>
           <Text style={styles.invitationStatus}>
-            {'Attending'}
+            {guest.rsvp || "Not Yet Replied"}
           </Text>
         </View>
         <View style={styles.linebreak}>
@@ -390,9 +401,13 @@ const styles = StyleSheet.create({
   },
   guestName: {
     textAlign: 'left',
+    fontFamily: 'Helvetica',
+    fontSize: 17,
   },
   invitationStatus: {
     textAlign: 'right',
+    fontFamily: 'Helvetica',
+    fontSize: 17,
   }
 });
 

@@ -103,7 +103,7 @@ class App extends React.Component {
   getInitialView() {
     firebase.auth().onAuthStateChanged((user) => {
 
-      let initialView = user ? "Home" : "Login";
+      let initialView = user ? "Home" : "Signup";
 
       this.setState({
         loaded: true,
@@ -115,21 +115,25 @@ class App extends React.Component {
 
   renderScene(route, navigator) {
     route.title = "Tea & Biscuits";
-    /*if (this.state.user != null) {
-      route.logout = this.logout;
-    } else {
-      navigator.popToTop();
-    }*/
     switch (route.name) {
       case "Home":
         route.rightButtonText = "Create Event";
+        /*route.leftButtonText = "Log Out";
+        route.onLeftButtonPress = () => {
+          this.logout();
+        };*/
         route.onRightButtonPress = () => {
           navigator.push({name: "Event"});
         };
         return (<Home navigator={navigator} {...route.passProps} />);
         break;
+      case "Signup":
+        route.type = "signup";
+        return (<Login navigator={navigator} route={route} {...route.passProps} />);
+        break;
       case "Login":
-        return (<Login navigator={navigator} {...route.passProps} />);
+        route.type = "login";
+        return (<Login navigator={navigator} route={route} {...route.passProps} />);
         break;
       case "Event":
         route.leftButtonText = "Cancel";

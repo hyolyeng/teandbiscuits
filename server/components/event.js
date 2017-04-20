@@ -1,6 +1,9 @@
-export default ({ event, uId }) => (
+export default ({ event, guestName, rsvp, uId }) => (
   <div className="event">
-    <div className="eventName">{event.name}</div>
-    <div className="uId">{uId}</div>
+    <p>Hi {guestName}!</p>
+    <p>{"Diana"} has invited you to her event:</p>
+    <p>{event.name}</p>
+    <p>Place: {event.place}</p>
+    <p>Your response: {rsvp}</p>
   </div>
 );

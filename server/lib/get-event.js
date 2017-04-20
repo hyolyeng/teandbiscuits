@@ -6,9 +6,6 @@ export default async (id) => {
     .child(id)
     .once('value');
   const val = event.val();
-  console.log(event);
-  console.log("*****");
-  console.log(event.val());
   if (val) {
     return transform(val);
   } else {
@@ -18,7 +15,6 @@ export default async (id) => {
 
 export function transform(val) {
   return {
-    id: val.id,
     name: val.name,
     maximum_guests: val.maximum_guests,
     minimum_guests: val.minimum_guests,

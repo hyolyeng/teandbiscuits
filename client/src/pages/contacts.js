@@ -58,8 +58,17 @@ class Contacts extends Component {
       Expo.Contacts.EMAILS,
     ]);
     if (contacts.length > 0) {
-      // TODO this sorting doesn't work.
-      contacts.sort((a, b) => {return a.firstName < b.firstName});
+      contacts.sort((a, b) => {
+        let nameA = a.name.toUpperCase();
+        let nameB = b.name.toUpperCase();
+        if (nameA < nameB) {
+          return -1;
+        } else if (nameA > nameB) {
+          return 1;
+        }
+        return 0;
+      });
+
       this.setState({
         contacts: contacts,
         dataSource: this.state.dataSource.cloneWithRows(contacts),
@@ -101,7 +110,7 @@ class Contacts extends Component {
               </Text>
             }
           </TouchableOpacity>
-          <Text style={styles.contactName, {flex: 10}}>{contact.name}</Text>
+          <Text style={styles.contactName}>{contact.name}</Text>
           <View style={{flex: 2, marginRight: 5, flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'flex-end'}}>
           {
             contact.phoneNumbers && contact.phoneNumbers.length > 0 ? (
@@ -154,7 +163,8 @@ const styles = StyleSheet.create({
   contactName: {
     color: '#030303',
     fontFamily: 'Helvetica',
-    fontSize: 17
+    fontSize: 17,
+    flex: 10,
   }
 });
 
